@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Kalkulator</title>
+    <style>
+      :root {
+        --latar: #e9ecf3;
+        --badan: #2b3a67;
+        --layar: #1d2850;
+        --teks-layar: #f4f6ff;
+        --teks-redup: #9fb0e6;
+        --tombol-angka: #f5f6fa;
+        --tombol-operator: #5b6fb3;
+        --tombol-fungsi: #c9d1ee;
+        --tombol-sama: #e4572e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 16px;
+        background: var(--latar);
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial,
+          sans-serif;
+        color: #1d2850;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .kalkulator {
+        width: 100%;
+        max-width: 340px;
+        padding: 18px;
+        border-radius: 22px;
+        background: var(--badan);
+        box-shadow: 0 14px 30px rgba(43, 58, 103, 0.35);
+      }
+
+      .layar {
+        min-height: 104px;
+        margin-bottom: 16px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: var(--layar);
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        overflow: hidden;
+      }
+
+      .ekspresi {
+        min-height: 1.3em;
+        font-size: 0.95rem;
+        color: var(--teks-redup);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .hasil {
+        font-size: 2.6rem;
+        line-height: 1.15;
+        color: var(--teks-layar);
+        font-variant-numeric: tabular-nums;
+        word-break: break-all;
+      }
+
+      .hasil.panjang {
+        font-size: 1.7rem;
+      }
+
+      .hasil.galat {
+        font-size: 1.3rem;
+        color: #ffb4a2;
+      }
+
+      .tombol-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      button {
+        height: 58px;
+        border: none;
+        border-radius: 14px;
+        font-size: 1.25rem;
+        font-family: inherit;
+        cursor: pointer;
+        background: var(--tombol-angka);
+        color: #1d2850;
+        transition: transform 0.08s ease, filter 0.15s ease;
+      }
+
+      button:hover {
+        filter: brightness(0.94);
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      button:focus-visible {
+        outline: 3px solid #f2c14e;
+        outline-offset: 2px;
+      }
+
+      button.fungsi {
+        background: var(--tombol-fungsi);
+      }
+
+      button.operator {
+        background: var(--tombol-operator);
+        color: #fff;
+      }
+
+      button.operator.aktif {
+        background: #fff;
+        color: var(--tombol-operator);
+        outline: 3px solid var(--tombol-operator);
+      }
+
+      button.sama {
+        background: var(--tombol-sama);
+        color: #fff;
+      }
+
+      .catatan {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #4a5784;
+        text-align: center;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        button {
+          transition: none;
+        }
+      }
+    </style>
+    
+  </head>
+  <body>
+    <h1>Aplikasi Kalkulator</h1>
+
+    <main class="kalkulator">
+      <div class="layar" aria-live="polite">
+        <div class="ekspresi" id="ekspresi"></div>
+        <div class="hasil" id="hasil">0</div>
+      </div>
+
+      <div class="tombol-grid">
+        <button class="fungsi" data-aksi="bersih">AC</button>
+        <button class="fungsi" data-aksi="hapus" aria-label="Hapus satu angka">⌫</button>
+        <button class="fungsi" data-aksi="persen">%</button>
+        <button class="operator" data-operator="/" aria-label="Bagi">÷</button>
+
+        <button data-angka="7">7</button>
+        <button data-angka="8">8</button>
+        <button data-angka="9">9</button>
+        <button class="operator" data-operator="*" aria-label="Kali">×</button>
+
+        <button data-angka="4">4</button>
+        <button data-angka="5">5</button>
+        <button data-angka="6">6</button>
+        <button class="operator" data-operator="-" aria-label="Kurang">−</button>
+
+        <button data-angka="1">1</button>
+        <button data-angka="2">2</button>
+        <button data-angka="3">3</button>
+        <button class="operator" data-operator="+" aria-label="Tambah">+</button>
+
+        <button class="fungsi" data-aksi="tanda" aria-label="Ubah positif negatif">±</button>
+        <button data-angka="0">0</button>
+        <button data-aksi="titik" aria-label="Titik desimal">.</button>
+        <button class="sama" data-aksi="sama" aria-label="Sama dengan">=</button>
+      </div>
+    </main>
+
+    <p class="catatan">Tombol keyboard juga bisa dipakai: angka, + - * /, Enter, Backspace, Esc.</p>
+
+    <script>
+      // ===== Elemen HTML yang dipakai =====
+      const layarHasil = document.getElementById("hasil");
+      const layarEkspresi = document.getElementById("ekspresi");
+      const semuaTombol = document.querySelectorAll("button");
+
+      // ===== State (keadaan) kalkulator =====
+      // tampil           : teks yang sedang tampil di layar
+      // angkaSebelum     : angka pertama sebelum operator dipilih
+      // operator         : operator yang sedang dipilih (+, -, *, /)
+      // menungguAngkaBaru: true jika angka berikutnya harus mengganti layar
+      // galat            : true jika terjadi error (misal dibagi nol)
+      let state = {
+        tampil: "0",
+        angkaSebelum: null,
+        operator: null,
+        menungguAngkaBaru: false,
+        galat: false,
+      };
+
+      const SIMBOL = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+      const BATAS_DIGIT = 12;
+
+      // ===== Fungsi bantu =====
+      // Merapikan hasil agar 0.1 + 0.2 tidak tampil 0.30000000000000004
+      const rapikan = (angka) => String(Number(angka.toPrecision(12)));
+
+      const hitung = (a, b, operator) => {
+        switch (operator) {
+          case "+":
+            return a + b;
+          case "-":
+            return a - b;
+          case "*":
+            return a * b;
+          case "/":
+            return b === 0 ? null : a / b;
+          default:
+            return b;
+        }
+      };
+
+      const tampilkanGalat = (pesan) => {
+        state = {
+          tampil: pesan,
+          angkaSebelum: null,
+          operator: null,
+          menungguAngkaBaru: true,
+          galat: true,
+        };
+        layarEkspresi.innerHTML = "";
+      };
+
+      const perbaruiLayar = () => {
+        layarHasil.innerHTML = state.tampil;
+
+        // Perkecil huruf jika angka panjang
+        layarHasil.classList.toggle("panjang", state.tampil.length > 9 && !state.galat);
+        layarHasil.classList.toggle("galat", state.galat);
+
+        // Tandai tombol operator yang sedang aktif
+        for (let tombol of semuaTombol) {
+          let sedangAktif =
+            tombol.dataset.operator === state.operator && state.menungguAngkaBaru;
+          tombol.classList.toggle("aktif", sedangAktif);
+        }
+      };
+
+      // ===== Aksi kalkulator =====
+      const masukkanAngka = (digit) => {
+        if (state.galat) semuaBersih();
+
+        if (state.menungguAngkaBaru) {
+          state.tampil = digit;
+          state.menungguAngkaBaru = false;
+        } else if (state.tampil.replace(/[-.]/g, "").length < BATAS_DIGIT) {
+          state.tampil = state.tampil === "0" ? digit : state.tampil + digit;
+        }
+        perbaruiLayar();
+      };
+
+      const masukkanTitik = () => {
+        if (state.galat) semuaBersih();
+
+        if (state.menungguAngkaBaru) {
+          state.tampil = "0.";
+          state.menungguAngkaBaru = false;
+        } else if (!state.tampil.includes(".")) {
+          state.tampil += ".";
+        }
+        perbaruiLayar();
+      };
+
+      const pilihOperator = (op) => {
+        if (state.galat) return;
+
+        let nilaiLayar = parseFloat(state.tampil);
+
+        // Jika sudah ada operator dan angka kedua sudah diketik, hitung dulu
+        if (state.operator !== null && !state.menungguAngkaBaru) {
+          let hasil = hitung(state.angkaSebelum, nilaiLayar, state.operator);
+          if (hasil === null) {
+            tampilkanGalat("Tidak bisa dibagi 0");
+            perbaruiLayar();
+            return;
+          }
+          state.angkaSebelum = hasil;
+          state.tampil = rapikan(hasil);
+        } else {
+          state.angkaSebelum = nilaiLayar;
+        }
+
+        state.operator = op;
+        state.menungguAngkaBaru = true;
+        layarEkspresi.innerHTML = `${rapikan(state.angkaSebelum)} ${SIMBOL[op]}`;
+        perbaruiLayar();
+      };
+
+      const samaDengan = () => {
+        if (state.galat || state.operator === null || state.menungguAngkaBaru) return;
+
+        let a = state.angkaSebelum;
+        let b = parseFloat(state.tampil);
+        let hasil = hitung(a, b, state.operator);
+
+        if (hasil === null) {
+          tampilkanGalat("Tidak bisa dibagi 0");
+          perbaruiLayar();
+          return;
+        }
+
+        layarEkspresi.innerHTML = `${rapikan(a)} ${SIMBOL[state.operator]} ${rapikan(b)} =`;
+        state.tampil = rapikan(hasil);
+        state.angkaSebelum = null;
+        state.operator = null;
+        state.menungguAngkaBaru = true;
+        perbaruiLayar();
+      };
+
+      const persen = () => {
+        if (state.galat) return;
+        state.tampil = rapikan(parseFloat(state.tampil) / 100);
+        perbaruiLayar();
+      };
+
+      const ubahTanda = () => {
+        if (state.galat || state.tampil === "0") return;
+        state.tampil = state.tampil.startsWith("-")
+          ? state.tampil.slice(1)
+          : "-" + state.tampil;
+        perbaruiLayar();
+      };
+
+      const hapusSatu = () => {
+        if (state.galat) return semuaBersih();
+        if (state.menungguAngkaBaru) return;
+
+        let sisa = state.tampil.slice(0, -1);
+        state.tampil = sisa === "" || sisa === "-" ? "0" : sisa;
+        perbaruiLayar();
+      };
+
+      const semuaBersih = () => {
+        state = {
+          tampil: "0",
+          angkaSebelum: null,
+          operator: null,
+          menungguAngkaBaru: false,
+          galat: false,
+        };
+        layarEkspresi.innerHTML = "";
+        perbaruiLayar();
+      };
+
+      // ===== Event klik pada tombol =====
+      for (let tombol of semuaTombol) {
+        tombol.addEventListener("click", () => {
+          let { angka, operator, aksi } = tombol.dataset;
+
+          if (angka !== undefined) {
+            masukkanAngka(angka);
+          } else if (operator !== undefined) {
+            pilihOperator(operator);
+          } else {
+            switch (aksi) {
+              case "bersih":
+                semuaBersih();
+                break;
+              case "hapus":
+                hapusSatu();
+                break;
+              case "persen":
+                persen();
+                break;
+              case "tanda":
+                ubahTanda();
+                break;
+              case "titik":
+                masukkanTitik();
+                break;
+              case "sama":
+                samaDengan();
+                break;
+            }
+          }
+        });
+      }
+
+      // ===== Dukungan keyboard =====
+      document.addEventListener("keydown", (e) => {
+        if (e.key >= "0" && e.key <= "9") {
+          masukkanAngka(e.key);
+        } else if (["+", "-", "*", "/"].includes(e.key)) {
+          e.preventDefault();
+          pilihOperator(e.key);
+        } else if (e.key === "." || e.key === ",") {
+          masukkanTitik();
+        } else if (e.key === "Enter" || e.key === "=") {
+          e.preventDefault();
+          samaDengan();
+        } else if (e.key === "Backspace") {
+          hapusSatu();
+        } else if (e.key === "Escape") {
+          semuaBersih();
+        } else if (e.key === "%") {
+          persen();
+        }
+      });
+
+      perbaruiLayar();
+    </script>
+  </body>
+</html>

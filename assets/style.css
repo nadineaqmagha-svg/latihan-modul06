@@ -1,0 +1,145 @@
+:root {
+  --latar: #e9ecf3;
+  --badan: #2b3a67;
+  --layar: #1d2850;
+  --teks-layar: #f4f6ff;
+  --teks-redup: #9fb0e6;
+  --tombol-angka: #f5f6fa;
+  --tombol-operator: #5b6fb3;
+  --tombol-fungsi: #c9d1ee;
+  --tombol-sama: #e4572e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--latar);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  color: #1d2850;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.kalkulator {
+  width: 100%;
+  max-width: 340px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--badan);
+  box-shadow: 0 14px 30px rgba(43, 58, 103, 0.35);
+}
+
+.layar {
+  min-height: 104px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--layar);
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.ekspresi {
+  min-height: 1.3em;
+  font-size: 0.95rem;
+  color: var(--teks-redup);
+  font-variant-numeric: tabular-nums;
+}
+
+.hasil {
+  font-size: 2.6rem;
+  line-height: 1.15;
+  color: var(--teks-layar);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.hasil.panjang {
+  font-size: 1.7rem;
+}
+
+.hasil.galat {
+  font-size: 1.3rem;
+  color: #ffb4a2;
+}
+
+.tombol-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+button {
+  height: 58px;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.25rem;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--tombol-angka);
+  color: #1d2850;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+button:hover {
+  filter: brightness(0.94);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+button:focus-visible {
+  outline: 3px solid #f2c14e;
+  outline-offset: 2px;
+}
+
+button.fungsi {
+  background: var(--tombol-fungsi);
+}
+
+button.operator {
+  background: var(--tombol-operator);
+  color: #fff;
+}
+
+button.operator.aktif {
+  background: #fff;
+  color: var(--tombol-operator);
+  outline: 3px solid var(--tombol-operator);
+}
+
+button.sama {
+  background: var(--tombol-sama);
+  color: #fff;
+}
+
+.catatan {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4a5784;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
